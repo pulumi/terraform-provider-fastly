@@ -10,14 +10,9 @@ description: |-
 
 Defines content that represents blocks of VCL logic that is inserted into your service.  This resource will populate the content of a dynamic snippet and allow it to be manged without the creation of a new service verison. 
  
-~> **Warning:** Terraform will take precedence over any changes you make through the API. Such changes are likely to be reversed if you run Terraform again.  
-
-If Terraform is being used to populate the initial content of a dynamic snippet which you intend to manage via the API, then the lifecycle `ignore_changes` field can be used with the resource.  An example of this configuration is provided below.
-
-
 ## Example Usage
 
-Basic usage:
+### Basic usage
 
 ```hcl 
 resource "fastly_service_v1" "myservice" {
@@ -55,7 +50,7 @@ resource "fastly_service_dynamic_snippet_content_v1" "my_dyn_content" {
 }
 ```
 
-Multiple dynamic snippets:
+### Multiple dynamic snippets
 
 ```hcl
 resource "fastly_service_v1" "myservice" {
@@ -111,7 +106,7 @@ resource "fastly_service_dynamic_snippet_content_v1" "my_dyn_content_two" {
 ### Supporting API dynamic snippet updates with ignore_changes
 
 The following example demonstrates how the lifecycle `ignore_changes` field can be used to suppress updates against the 
-content in a dynamic snippet.  If, after your first deploy, the Fastly API is to be used to manage items in a dynamic snippet, then this will stop Terraform realigning the remote state with the initial content defined in your HCL.
+content in a dynamic snippet.  If, after your first deploy, the Fastly API is to be used to manage items in a dynamic snippet, then this will stop the provider realigning the remote with the initial content defined in your HCL.
 
 ```hcl
 ...

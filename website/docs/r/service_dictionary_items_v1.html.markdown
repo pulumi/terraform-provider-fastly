@@ -10,15 +10,9 @@ description: |-
 
 Defines a map of Fastly dictionary items that can be used to populate a service dictionary.  This resource will populate a dictionary with the items and will track their state.
 
-
-~> **Warning:** Terraform will take precedence over any changes you make in the UI or API. Such changes are likely to be reversed if you run Terraform again.  
-
-If Terraform is being used to populate the initial content of a dictionary which you intend to manage via API or UI, then the lifecycle `ignore_changes` field can be used with the resource.  An example of this configuration is provided below.    
-
-
 ## Example Usage
 
-Basic usage:
+### Basic usage
 
 ```hcl
 variable "mydict_name" {
@@ -57,7 +51,7 @@ resource "fastly_service_dictionary_items_v1" "items" {
 }
 ```
 
-Complex object usage:
+### Complex object usage
 
 ```hcl
 variable "mydict" {
@@ -99,7 +93,7 @@ resource "fastly_service_dictionary_items_v1" "items" {
 }
 ```
 
-Expression and functions usage:
+### Expression and functions usage
 
 ```hcl
 // Local variables used when formating values for the "My Project Dictionary" example
@@ -145,7 +139,7 @@ resource "fastly_service_dictionary_items_v1" "project" {
 ### Supporting API and UI dictionary updates with ignore_changes
 
 The following example demonstrates how the lifecycle `ignore_changes` field can be used to suppress updates against the 
-items in a dictionary.  If, after your first deploy, the Fastly API or UI is to be used to manage items in a dictionary, then this will stop Terraform realigning the remote state with the initial set of dictionary items defined in your HCL.
+items in a dictionary.  If, after your first deploy, the Fastly API or UI is to be used to manage items in a dictionary, then this will stop the provider realigning the state with the initial set of dictionary items defined in your application.
 
 ```hcl
 ...

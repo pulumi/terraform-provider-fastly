@@ -10,14 +10,9 @@ description: |-
 
 Defines a set of Fastly ACL entries that can be used to populate a service ACL.  This resource will populate an ACL with the entries and will track their state.
 
-~> **Warning:** Terraform will take precedence over any changes you make in the UI or API. Such changes are likely to be reversed if you run Terraform again.  
-
-If Terraform is being used to populate the initial content of an ACL which you intend to manage via API or UI, then the lifecycle `ignore_changes` field can be used with the resource.  An example of this configuration is provided below.    
-
-
 ## Example Usage
 
-Basic usage:
+### Basic usage
 
 ```hcl
 variable "myacl_name" {
@@ -58,7 +53,7 @@ resource "fastly_service_acl_entries_v1" "entries" {
 }
 ```
 
-Complex object usage:
+### Complex object usage
 
 The following example demonstrates the use of dynamic nested blocks to create ACL entries.
 
@@ -123,8 +118,8 @@ resource "fastly_service_acl_entries_v1" "entries" {
 
 ### Supporting API and UI ACL updates with ignore_changes
 
-The following example demonstrates how the lifecycle `ignore_changes` field can be used to suppress updates against the 
-entries in an ACL.  If, after your first deploy, the Fastly API or UI is to be used to manage entries in an ACL, then this will stop Terraform realigning the remote state with the initial set of ACL entries defined in your HCL.
+The following example demonstrates how the lifecycle `ignoreChanges` field can be used to suppress updates against the 
+entries in an ACL.  If, after your first deploy, the Fastly API or UI is to be used to manage entries in an ACL, then this will stop the provider realigning the state with the initial set of ACL entries defined in your application.
 
 ```hcl
 ...

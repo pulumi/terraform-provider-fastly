@@ -14,8 +14,6 @@ The User resource requires a login and name, and optionally a role.
 
 ## Example Usage
 
-Basic usage:
-
 ```hcl
 resource "fastly_user_v1" "demo" {
   login = "demo@example.com"

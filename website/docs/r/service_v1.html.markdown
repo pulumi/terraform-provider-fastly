@@ -18,7 +18,7 @@ on their documentation site for guidance.
 
 ## Example Usage
 
-Basic usage:
+### Basic usage
 
 ```hcl
 resource "fastly_service_v1" "demo" {
@@ -39,7 +39,7 @@ resource "fastly_service_v1" "demo" {
 }
 ```
 
-Basic usage with an Amazon S3 Website and that removes the `x-amz-request-id` header:
+### Basic usage with an Amazon S3 Website and that removes the `x-amz-request-id` header
 
 ```hcl
 resource "fastly_service_v1" "demo" {
@@ -85,9 +85,7 @@ resource "aws_s3_bucket" "website" {
 }
 ```
 
-Basic usage with [custom
-VCL](https://docs.fastly.com/guides/vcl/uploading-custom-vcl) (must be
-enabled on your Fastly account):
+### Basic usage with custom VCL:
 
 ```hcl
 resource "fastly_service_v1" "demo" {
@@ -119,7 +117,7 @@ resource "fastly_service_v1" "demo" {
 }
 ```
 
-Basic usage with [custom Director](https://docs.fastly.com/api/config#director):
+### Basic usage with custom Director
 
 ```hcl
 resource "fastly_service_v1" "demo" {
@@ -164,7 +162,7 @@ The following arguments are supported:
 
 * `activate` - (Optional) Conditionally prevents the Service from being activated. The apply step will continue to create a new draft version but will not activate it if this is set to false. Default true.
 * `name` - (Required) The unique name for the Service to create.
-* `comment` - (Optional) Description field for the service. Default `Managed by Terraform`.
+* `comment` - (Optional) Description field for the service. Default `Managed by Pulumi`.
 * `version_comment` - (Optional) Description field for the version.
 * `domain` - (Required) A set of Domain names to serve as entry points for your
 Service. Defined below.
@@ -559,7 +557,7 @@ The `dictionary` block supports:
 * `write_only` - (Optional) If `true`, the dictionary is a private dictionary, and items are not readable in the UI or
 via API. Default is `false`. It is important to note that changing this attribute will delete and recreate the
 dictionary, discard the current items in the dictionary. Using a write-only/private dictionary should only be done if
-the items are managed outside of Terraform.
+the items are managed outside of the provider.
 
 ## Attributes Reference
 
@@ -567,7 +565,7 @@ In addition to the arguments listed above, the following attributes are exported
 
 * `id` – The ID of the Service.
 * `active_version` – The currently active version of your Fastly Service.
-* `cloned_version` - The latest cloned version by the provider. The value gets only set after running `terraform apply`.
+* `cloned_version` - The latest cloned version by the provider. The value gets only set after running `pulumi up`.
 
 The `dynamicsnippet` block exports:
 
