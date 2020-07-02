@@ -100,7 +100,7 @@ func (h *SFTPServiceAttributeHandler) Register(s *schema.Resource) error {
 					Type:        schema.TypeInt,
 					Optional:    true,
 					Default:     0,
-					Description: "What level of GZIP encoding to have when dumping logs (default 0, no compression).",
+					Description: "What level of Gzip encoding to have when dumping logs (default 0, no compression).",
 				},
 
 				"timestamp_format": {
@@ -111,10 +111,11 @@ func (h *SFTPServiceAttributeHandler) Register(s *schema.Resource) error {
 				},
 
 				"message_type": {
-					Type:        schema.TypeString,
-					Optional:    true,
-					Default:     "classic",
-					Description: "How the message should be formatted. One of: classic (default), loggly, logplex or blank.",
+					Type:         schema.TypeString,
+					Optional:     true,
+					Default:      "classic",
+					Description:  "How the message should be formatted. One of: classic (default), loggly, logplex or blank.",
+					ValidateFunc: validateLoggingMessageType(),
 				},
 
 				"format": {
