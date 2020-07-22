@@ -279,6 +279,7 @@ Default `200`.
 * `weight` - (Optional) The [portion of traffic](https://docs.fastly.com/en/guides/load-balancing-configuration#how-weight-affects-load-balancing) to send to this Backend. Each Backend receives `weight / total` of the traffic. Default `100`.
 * `healthcheck` - (Optional) Name of a defined `healthcheck` to assign to this backend.
 
+
 The `condition` block supports allows you to add logic to any basic configuration
 object in a service. See Fastly's documentation
 ["About Conditions"](https://docs.fastly.com/en/guides/about-conditions)
@@ -405,11 +406,11 @@ seconds. Default `3600`.
 * `gzip_level` - (Optional) Level of Gzip compression, from `0-9`. `0` is no
 compression. `1` is fastest and least compressed, `9` is slowest and most
 compressed. Default `0`.
-* `format` - (Optional) Apache-style string or VCL variables to use for log formatting. Defaults to Apache Common Log format (`%h %l %u %t %r %>s`).
-* `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either 1 (the default, version 1 log format) or 2 (the version 2 log format).
 * `message_type` - (Optional) How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`.  Default `classic`.
 * `timestamp_format` - (Optional) `strftime` specified timestamp formatting (default `%Y-%m-%dT%H:%M:%S.000`).
 * `redundancy` - (Optional) The S3 redundancy level. Should be formatted; one of: `standard`, `reduced_redundancy` or null. Default `null`.
+* `format` - (Optional) Apache-style string or VCL variables to use for log formatting. Defaults to Apache Common Log format (`%h %l %u %t %r %>s`).
+* `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either 1 (the default, version 1 log format) or 2 (the version 2 log format).
 * `response_condition` - (Optional) Name of already defined `condition` to apply. This `condition` must be of type `RESPONSE`. For detailed information about Conditionals,
 see [Fastly's Documentation on Conditionals][fastly-conditionals].
 * `placement` - (Optional) Where in the generated VCL the logging call should be placed; one of: `none` or `waf_debug`.
@@ -428,10 +429,10 @@ The `sumologic` block supports:
 
 * `name` - (Required) A unique name to identify this Sumologic endpoint.
 * `url` - (Required) The URL to Sumologic collector endpoint
+* `message_type` - (Optional) How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`. Default `classic`. See [Fastly's Documentation on Sumologic][fastly-sumologic]
 * `format` - (Optional) Apache-style string or VCL variables to use for log formatting. Defaults to Apache Common Log format (`%h %l %u %t %r %>s`)
 * `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either 1 (the default, version 1 log format) or 2 (the version 2 log format).
 * `response_condition` - (Optional) Name of already defined `condition` to apply. This `condition` must be of type `RESPONSE`. For detailed information about Conditionals, see [Fastly's Documentation on Conditionals][fastly-conditionals].
-* `message_type` - (Optional) How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`. Default `classic`. See [Fastly's Documentation on Sumologic][fastly-sumologic]
 * `placement` - (Optional) Where in the generated VCL the logging call should be placed; one of: `none` or `waf_debug`.
 
 The `gcslogging` block supports:
@@ -447,9 +448,9 @@ seconds. Default `3600`.
 * `gzip_level` - (Optional) Level of Gzip compression, from `0-9`. `0` is no
 compression. `1` is fastest and least compressed, `9` is slowest and most
 compressed. Default `0`.
+* `message_type` - (Optional) How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`. Default `classic`. [Fastly Documentation](https://developer.fastly.com/reference/api/logging/gcs/)
 * `format` - (Optional) Apache-style string or VCL variables to use for log formatting. Defaults to Apache Common Log format (`%h %l %u %t %r %>s`)
 * `response_condition` - (Optional) Name of already defined `condition` to apply. This `condition` must be of type `RESPONSE`. For detailed information about Conditionals, see [Fastly's Documentation on Conditionals][fastly-conditionals].
-* `message_type` - (Optional) How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`. Default `classic`. [Fastly Documentation](https://developer.fastly.com/reference/api/logging/gcs/)
 * `placement` - (Optional) Where in the generated VCL the logging call should be placed; one of: `none` or `waf_debug`.
 
 The `bigquerylogging` block supports:
@@ -470,17 +471,17 @@ The `syslog` block supports:
 * `name` - (Required) A unique name to identify this Syslog endpoint.
 * `address` - (Required) A hostname or IPv4 address of the Syslog endpoint.
 * `port` - (Optional) The port associated with the address where the Syslog endpoint can be accessed. Default `514`.
-* `format` - (Optional) Apache-style string or VCL variables to use for log formatting. Defaults to Apache Common Log format (%h %l %u %t %r %>s)
-* `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either 1 (the default, version 1 log format) or 2 (the version 2 log format).
 * `token` - (Optional) Whether to prepend each message with a specific token.
 * `use_tls` - (Optional) Whether to use TLS for secure logging. Default `false`.
 * `tls_hostname` - (Optional) Used during the TLS handshake to validate the certificate.
 * `tls_ca_cert` - (Optional) A secure certificate to authenticate the server with. Must be in PEM format. You can provide this certificate via an environment variable, `FASTLY_SYSLOG_CA_CERT`
 * `tls_client_cert` - (Optional) The client certificate used to make authenticated requests. Must be in PEM format. You can provide this certificate via an environment variable, `FASTLY_SYSLOG_CLIENT_CERT`
 * `tls_client_key` - (Optional) The client private key used to make authenticated requests. Must be in PEM format. You can provide this key via an environment variable, `FASTLY_SYSLOG_CLIENT_KEY`
+* `message_type` - (Optional) How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`.  Default `classic`.
+* `format` - (Optional) Apache-style string or VCL variables to use for log formatting. Defaults to Apache Common Log format (%h %l %u %t %r %>s)
+* `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either 1 (the default, version 1 log format) or 2 (the version 2 log format).
 * `response_condition` - (Optional) Name of already defined `condition` to apply. This `condition` must be of type `RESPONSE`. For detailed information about Conditionals,
 see [Fastly's Documentation on Conditionals][fastly-conditionals].
-* `message_type` - (Optional) How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`.  Default `classic`.
 * `placement` - (Optional) Where in the generated VCL the logging call should be placed; one of: `none` or `waf_debug`.
 
 The `logentries` block supports:
@@ -517,9 +518,9 @@ The `blobstoragelogging` block supports:
 * `timestamp_format` - (Optional) `strftime` specified timestamp formatting. Default `%Y-%m-%dT%H:%M:%S.000`.
 * `gzip_level` - (Optional) Level of Gzip compression from `0`to `9`. `0` means no compression. `1` is the fastest and the least compressed version, `9` is the slowest and the most compressed version. Default `0`.
 * `public_key` - (Optional) A PGP public key that Fastly will use to encrypt your log files before writing them to disk.
+* `message_type` - (Optional) How the message should be formatted. Can be either `classic`, `loggly`, `logplex` or `blank`.  Default `classic`.
 * `format` - (Optional) Apache-style string or VCL variables to use for log formatting. Default `%h %l %u %t \"%r\" %>s %b`.
 * `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either `1` or `2`. The logging call gets placed by default in `vcl_log` if `format_version` is set to `2` and in `vcl_deliver` if `format_version` is set to `1`. Default `2`.
-* `message_type` - (Optional) How the message should be formatted. Can be either `classic`, `loggly`, `logplex` or `blank`.  Default `classic`.
 * `placement` - (Optional) Where in the generated VCL the logging call should be placed, overriding any `format_version` default. Can be either `none` or `waf_debug`.
 * `response_condition` - (Optional) The name of the `condition` to apply. If empty, always execute.
 
@@ -538,9 +539,9 @@ The `httpslogging` block supports:
 * `tls_ca_cert` - (Optional) A secure certificate to authenticate the server with. Must be in PEM format.
 * `tls_client_cert` - (Optional) The client certificate used to make authenticated requests. Must be in PEM format.
 * `tls_client_key` - (Optional) The client private key used to make authenticated requests. Must be in PEM format.
+* `message_type` - How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`.  Default `blank`.
 * `format` - (Optional) Apache-style string or VCL variables to use for log formatting.
 * `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either `1` or `2`. The logging call gets placed by default in `vcl_log` if `format_version` is set to `2` and in `vcl_deliver` if `format_version` is set to `1`. Default `2`.
-* `message_type` - How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`.  Default `blank`.
 * `placement` - (Optional) Where in the generated VCL the logging call should be placed.
 * `response_condition` - (Optional) The name of the `condition` to apply. If empty, always execute.
 
@@ -592,13 +593,13 @@ The `logging_sftp` block supports:
 * `secret_key` - (Optional) The SSH private key for the server. If both `password` and `secret_key` are passed, `secret_key` will be preferred.
 * `gzip_level` - (Optional) What level of Gzip encoding to have when dumping logs (default 0, no compression).
 * `period` - (Optional) How frequently log files are finalized so they can be available for reading (in seconds, default `3600`).
-* `placement` - (Optional) Where in the generated VCL the logging call should be placed.
 * `public_key` - (Optional) A PGP public key that Fastly will use to encrypt your log files before writing them to disk.
+* `timestamp_format` - (Optional) The strftime specified timestamp formatting (default `%Y-%m-%dT%H:%M:%S.000`).
+* `message_type` - (Optional) How the message should be formatted. One of: classic (default), loggly, logplex or blank.
 * `format` - (Optional) Apache-style string or VCL variables to use for log formatting.
 * `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either `1` or `2`. (default: `2`).
 * `response_condition` - (Optional) The name of the condition to apply.
-* `timestamp_format` - (Optional) The strftime specified timestamp formatting (default `%Y-%m-%dT%H:%M:%S.000`).
-* `message_type` - (Optional) How the message should be formatted. One of: classic (default), loggly, logplex or blank.
+* `placement` - (Optional) Where in the generated VCL the logging call should be placed.
 
 The `logging_datadog` block supports:
 
@@ -729,9 +730,9 @@ The `logging_digitalocean` block supports:
 * `period` - (Optional) How frequently log files are finalized so they can be available for reading (in seconds, default 3600).
 * `timestamp_format` - (Optional) The strftime specified timestamp formatting (default `%Y-%m-%dT%H:%M:%S.000`).
 * `gzip_level` - (Optional) What level of Gzip encoding to have when dumping logs (default 0, no compression).
+* `message_type` - (Optional) How the message should be formatted. One of: classic (default), loggly, logplex or blank.
 * `format` - (Optional) Apache-style string or VCL variables to use for log formatting.
 * `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either `1` or `2`. (default: `2`).
-* `message_type` - (Optional) How the message should be formatted. One of: classic (default), loggly, logplex or blank.
 * `placement` - (Optional) Where in the generated VCL the logging call should be placed. Can be `none` or `waf_debug`.
 * `response_condition` - (Optional) The name of an existing condition in the configured endpoint, or leave blank to always execute.
 
@@ -742,16 +743,16 @@ The `logging_cloudfiles` block supports:
 * `bucket_name` - (Required) The name of your Cloud Files container.
 * `access_key` - (Required) Your Cloud File account access key.
 * `public_key` - (Optional) The PGP public key that Fastly will use to encrypt your log files before writing them to disk.
-* `format` - (Optional) Apache style log formatting.
-* `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either `1` or `2`. (default: `2`).
 * `gzip_level` - (Optional) What level of GZIP encoding to have when dumping logs (default 0, no compression).
 * `message_type` - (Optional) How the message should be formatted. One of: classic (default), loggly, logplex or blank.
 * `path` - (Optional) The path to upload logs to.
 * `region` - (Optional) The region to stream logs to. One of: DFW (Dallas), ORD (Chicago), IAD (Northern Virginia), LON (London), SYD (Sydney), HKG (Hong Kong).
 * `period` - (Optional) How frequently log files are finalized so they can be available for reading (in seconds, default 3600).
+* `timestamp_format` - (Optional) The strftime specified timestamp formatting (default `%Y-%m-%dT%H:%M:%S.000`).
+* `format` - (Optional) Apache style log formatting.
+* `format_version` - (Optional) The version of the custom logging format used for the configured endpoint. Can be either `1` or `2`. (default: `2`).
 * `placement` - (Optional) Where in the generated VCL the logging call should be placed. Can be `none` or `waf_debug`.
 * `response_condition` - (Optional) The name of an existing condition in the configured endpoint, or leave blank to always execute.
-* `timestamp_format` - (Optional) The strftime specified timestamp formatting (default `%Y-%m-%dT%H:%M:%S.000`).
 
 The `response_object` block supports:
 
@@ -830,3 +831,4 @@ Fastly Service can be imported using their service ID, e.g.
 ```
 $ terraform import fastly_service_v1.demo xxxxxxxxxxxxxxxxxxxx
 ```
+
