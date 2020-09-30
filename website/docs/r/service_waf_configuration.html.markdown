@@ -472,6 +472,20 @@ output "rules" {
 }
 ```
 
+## Adding a WAF to an existing service
+
+~> **Warning:** A two-phase change is required when adding a WAF to an existing service
+
+When adding a `waf` to an existing `fastly_service_v1` and at the same time adding a `fastly_service_waf_configuration`
+resource with `waf_id = fastly_service_v1.demo.waf[0].waf_id` might result with the in the following error:
+
+> fastly_service_v1.demo.waf is empty list of object
+
+For this scenario, it's recommended to split the changes into two distinct steps:
+
+1. Add the `waf` block to the `fastly_service_v1` and apply the changes
+2. Add the `fastly_service_waf_configuration` to the HCL and apply the changes
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -480,7 +494,7 @@ The following arguments are supported:
 * `allowed_http_versions` - (Optional) Allowed HTTP versions.
 * `allowed_methods` - (Optional) A space-separated list of HTTP method names.
 * `allowed_request_content_type` - (Optional) Allowed request content types.
-* `allowed_request_content_type_charset` - (Required) Allowed request content type charset.
+* `allowed_request_content_type_charset` - (Optional) Allowed request content type charset.
 * `arg_length` - (Optional) The maximum number of arguments allowed.
 * `arg_name_length` - (Optional) The maximum allowed argument name length.
 * `combined_file_sizes` - (Optional) The maximum allowed size of all files.
