@@ -52,21 +52,18 @@ test-compile:
 	fi
 	go test -c $(TEST) $(TESTARGS)
 
-website:
-ifeq (,$(wildcard $(GOPATH)/src/$(WEBSITE_REPO)))
-	echo "$(WEBSITE_REPO) not found in your GOPATH (necessary for layouts and assets), get-ting..."
-	git clone https://$(WEBSITE_REPO) $(GOPATH)/src/$(WEBSITE_REPO)
-endif
-	go run "scripts/website/parse-templates.go"
-	@$(MAKE) -C $(GOPATH)/src/$(WEBSITE_REPO) website-provider PROVIDER_PATH=$(shell pwd) PROVIDER_NAME=$(PKG_NAME)
+dependencies:
+	@echo "Download go.mod dependencies"
+	@go mod download
 
-website-test:
-ifeq (,$(wildcard $(GOPATH)/src/$(WEBSITE_REPO)))
-	echo "$(WEBSITE_REPO) not found in your GOPATH (necessary for layouts and assets), get-ting..."
-	git clone https://$(WEBSITE_REPO) $(GOPATH)/src/$(WEBSITE_REPO)
-endif
-	go run "scripts/website/parse-templates.go"
-	@$(MAKE) -C $(GOPATH)/src/$(WEBSITE_REPO) website-provider-test PROVIDER_PATH=$(shell pwd) PROVIDER_NAME=$(PKG_NAME)
+install-tools: dependencies
+	@echo "Installing tools from tools/tools.go"
+	@cat tools/tools.go | grep _ | awk -F '"' '{print $$2}' | xargs -tI {} go install {}
 
-.PHONY: build test testacc vet fmt fmtcheck errcheck test-compile website website-test
+generate-docs: install-tools
+	go run scripts/generate-docs.go
 
+validate-docs: install-tools
+	tfplugindocs validate
+
+.PHONY: build test testacc vet fmt fmtcheck errcheck test-compile validate-docs generate-docs install-tools dependencies
