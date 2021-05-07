@@ -202,6 +202,8 @@ Required:
 
 Optional:
 
+- **compression_codec** (String) The codec used for compression of your logs. Valid values are zstd, snappy, and gzip. If the specified codec is "gzip", gzip_level will default to 3. To specify a different level, leave compression_codec blank and explicitly set the level using gzip_level. Specifying both compression_codec and gzip_level in the same API request will result in an error.
+- **file_max_bytes** (Number) Maximum size of an uploaded log file, if non-zero.
 - **gzip_level** (Number) Level of Gzip compression from `0-9`. `0` means no compression. `1` is the fastest and the least compressed version, `9` is the slowest and the most compressed version. Default `0`
 - **message_type** (String) How the message should be formatted. Can be either `classic`, `loggly`, `logplex` or `blank`. Default `classic`
 - **path** (String) The path to upload logs to. Must end with a trailing slash. If this field is left empty, the files will be saved in the container's root path
@@ -238,6 +240,7 @@ Required:
 
 Optional:
 
+- **compression_codec** (String) The codec used for compression of your logs. Valid values are zstd, snappy, and gzip. If the specified codec is "gzip", gzip_level will default to 3. To specify a different level, leave compression_codec blank and explicitly set the level using gzip_level. Specifying both compression_codec and gzip_level in the same API request will result in an error.
 - **email** (String) The email address associated with the target GCS bucket on your account. You may optionally provide this secret via an environment variable, `FASTLY_GCS_EMAIL`
 - **gzip_level** (Number) Level of Gzip compression, from `0-9`. `0` is no compression. `1` is fastest and least compressed, `9` is slowest and most compressed. Default `0`
 - **message_type** (String) How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`. Default `classic`. [Fastly Documentation](https://developer.fastly.com/reference/api/logging/gcs/)
@@ -318,6 +321,7 @@ Required:
 
 Optional:
 
+- **compression_codec** (String) The codec used for compression of your logs. Valid values are zstd, snappy, and gzip. If the specified codec is "gzip", gzip_level will default to 3. To specify a different level, leave compression_codec blank and explicitly set the level using gzip_level. Specifying both compression_codec and gzip_level in the same API request will result in an error.
 - **gzip_level** (Number) What level of GZIP encoding to have when dumping logs (default `0`, no compression)
 - **message_type** (String) How the message should be formatted. One of: `classic` (default), `loggly`, `logplex` or `blank`
 - **path** (String) The path to upload logs to
@@ -352,6 +356,7 @@ Required:
 
 Optional:
 
+- **compression_codec** (String) The codec used for compression of your logs. Valid values are zstd, snappy, and gzip. If the specified codec is "gzip", gzip_level will default to 3. To specify a different level, leave compression_codec blank and explicitly set the level using gzip_level. Specifying both compression_codec and gzip_level in the same API request will result in an error.
 - **domain** (String) The domain of the DigitalOcean Spaces endpoint (default `nyc3.digitaloceanspaces.com`)
 - **gzip_level** (Number) What level of Gzip encoding to have when dumping logs (default `0`, no compression)
 - **message_type** (String) How the message should be formatted. One of: `classic` (default), `loggly`, `logplex` or `blank`
@@ -396,6 +401,7 @@ Required:
 
 Optional:
 
+- **compression_codec** (String) The codec used for compression of your logs. Valid values are zstd, snappy, and gzip. If the specified codec is "gzip", gzip_level will default to 3. To specify a different level, leave compression_codec blank and explicitly set the level using gzip_level. Specifying both compression_codec and gzip_level in the same API request will result in an error.
 - **gzip_level** (Number) Gzip Compression level. Default `0`
 - **message_type** (String) How the message should be formatted (default: `classic`)
 - **period** (Number) How frequently the logs should be transferred, in seconds (Default `3600`)
@@ -469,14 +475,15 @@ Optional:
 
 Required:
 
-- **access_key** (String, Sensitive) The AWS access key to be used to write to the stream
 - **name** (String) The unique name of the Kinesis logging endpoint. It is important to note that changing this attribute will delete and recreate the resource
-- **secret_key** (String, Sensitive) The AWS secret access key to authenticate with
 - **topic** (String) The Kinesis stream name
 
 Optional:
 
+- **access_key** (String, Sensitive) The AWS access key to be used to write to the stream
+- **iam_role** (String) The Amazon Resource Name (ARN) for the IAM role granting Fastly access to Kinesis. Not required if `access_key` and `secret_key` are provided.
 - **region** (String) The AWS region the stream resides in. (Default: `us-east-1`)
+- **secret_key** (String, Sensitive) The AWS secret access key to authenticate with
 
 
 <a id="nestedblock--logging_loggly"></a>
@@ -520,6 +527,7 @@ Required:
 
 Optional:
 
+- **compression_codec** (String) The codec used for compression of your logs. Valid values are zstd, snappy, and gzip. If the specified codec is "gzip", gzip_level will default to 3. To specify a different level, leave compression_codec blank and explicitly set the level using gzip_level. Specifying both compression_codec and gzip_level in the same API request will result in an error.
 - **gzip_level** (Number) What level of Gzip encoding to have when dumping logs (default `0`, no compression)
 - **message_type** (String) How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`. Default `classic`. [Fastly Documentation](https://developer.fastly.com/reference/api/logging/gcs/)
 - **path** (String) Path to store the files. Must end with a trailing slash. If this field is left empty, the files will be saved in the bucket's root path
@@ -554,6 +562,7 @@ Required:
 
 Optional:
 
+- **compression_codec** (String) The codec used for compression of your logs. Valid values are zstd, snappy, and gzip. If the specified codec is "gzip", gzip_level will default to 3. To specify a different level, leave compression_codec blank and explicitly set the level using gzip_level. Specifying both compression_codec and gzip_level in the same API request will result in an error.
 - **gzip_level** (Number) What level of Gzip encoding to have when dumping logs (default `0`, no compression)
 - **message_type** (String) How the message should be formatted. One of: `classic` (default), `loggly`, `logplex` or `blank`
 - **password** (String, Sensitive) The password for the server. If both `password` and `secret_key` are passed, `secret_key` will be preferred
@@ -584,6 +593,7 @@ Required:
 
 Optional:
 
+- **compression_codec** (String) The codec used for compression of your logs. Valid values are zstd, snappy, and gzip. If the specified codec is "gzip", gzip_level will default to 3. To specify a different level, leave compression_codec blank and explicitly set the level using gzip_level. Specifying both compression_codec and gzip_level in the same API request will result in an error.
 - **domain** (String) If you created the S3 bucket outside of `us-east-1`, then specify the corresponding bucket endpoint. Example: `s3-us-west-2.amazonaws.com`
 - **gzip_level** (Number) Level of Gzip compression, from `0-9`. `0` is no compression. `1` is fastest and least compressed, `9` is slowest and most compressed. Default `0`
 - **message_type** (String) How the message should be formatted; one of: `classic`, `loggly`, `logplex` or `blank`. Default `classic`
@@ -591,8 +601,9 @@ Optional:
 - **period** (Number) How frequently the logs should be transferred, in seconds. Default `3600`
 - **public_key** (String) A PGP public key that Fastly will use to encrypt your log files before writing them to disk
 - **redundancy** (String) The S3 redundancy level. Should be formatted; one of: `standard`, `reduced_redundancy` or null. Default `null`
-- **s3_access_key** (String, Sensitive) AWS Access Key of an account with the required permissions to post logs. It is **strongly** recommended you create a separate IAM user with permissions to only operate on this Bucket. This key will be not be encrypted. You can provide this key via an environment variable, `FASTLY_S3_ACCESS_KEY`
-- **s3_secret_key** (String, Sensitive) AWS Secret Key of an account with the required permissions to post logs. It is **strongly** recommended you create a separate IAM user with permissions to only operate on this Bucket. This secret will be not be encrypted. You can provide this secret via an environment variable, `FASTLY_S3_SECRET_KEY`
+- **s3_access_key** (String, Sensitive) AWS Access Key of an account with the required permissions to post logs. It is **strongly** recommended you create a separate IAM user with permissions to only operate on this Bucket. This key will be not be encrypted. Not required if `iam_role` is provided. You can provide this key via an environment variable, `FASTLY_S3_ACCESS_KEY`
+- **s3_iam_role** (String) The Amazon Resource Name (ARN) for the IAM role granting Fastly access to S3. Not required if `access_key` and `secret_key` are provided. You can provide this value via an environment variable, `FASTLY_S3_IAM_ROLE`
+- **s3_secret_key** (String, Sensitive) AWS Secret Key of an account with the required permissions to post logs. It is **strongly** recommended you create a separate IAM user with permissions to only operate on this Bucket. This secret will be not be encrypted. Not required if `iam_role` is provided. You can provide this secret via an environment variable, `FASTLY_S3_SECRET_KEY`
 - **server_side_encryption** (String) Specify what type of server side encryption should be used. Can be either `AES256` or `aws:kms`
 - **server_side_encryption_kms_key_id** (String) Optional server-side KMS Key Id. Must be set if server_side_encryption is set to `aws:kms`
 - **timestamp_format** (String) `strftime` specified timestamp formatting (default `%Y-%m-%dT%H:%M:%S.000`)
