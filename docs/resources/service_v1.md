@@ -151,8 +151,6 @@ resource "fastly_service_v1" "demo" {
 }
 ```
 
--> **Note:** The following example is only available from 0.20.0 of the Fastly Terraform provider.
-
 Basic usage with [Web Application Firewall](https://developer.fastly.com/reference/api/waf/):
 
 ```hcl
@@ -435,7 +433,7 @@ Required:
 Optional:
 
 - **force_destroy** (Boolean) Allow the dictionary to be deleted, even if it contains entries. Defaults to false.
-- **write_only** (Boolean) If `true`, the dictionary is a private dictionary, and items are not readable in the UI or via API. Default is `false`. It is important to note that changing this attribute will delete and recreate the dictionary, and discard the current items in the dictionary. Using a write-only/private dictionary should only be done if the items are managed outside of Terraform
+- **write_only** (Boolean) If `true`, the dictionary is a private dictionary, and items are not readable in the UI or via API. Default is `false`. It is important to note that changing this attribute will delete and recreate the dictionary, and discard the current items in the dictionary. Using a write-only/private dictionary should only be done if the items are managed outside of the provider
 
 Read-Only:
 

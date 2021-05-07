@@ -171,7 +171,7 @@ Required:
 
 Optional:
 
-- **source_code_hash** (String) Used to trigger updates. Must be set to a SHA512 hash of the package file specified with the filename. The usual way to set this is filesha512("package.tar.gz") (Terraform 0.11.12 and later) or filesha512(file("package.tar.gz")) (Terraform 0.11.11 and earlier), where "package.tar.gz" is the local filename of the Wasm deployment package
+- **source_code_hash** (String) Used to trigger updates. Must be set to a SHA512 hash of the package file specified with the filename.
 
 
 <a id="nestedblock--bigquerylogging"></a>
@@ -223,7 +223,7 @@ Required:
 Optional:
 
 - **force_destroy** (Boolean) Allow the dictionary to be deleted, even if it contains entries. Defaults to false.
-- **write_only** (Boolean) If `true`, the dictionary is a private dictionary, and items are not readable in the UI or via API. Default is `false`. It is important to note that changing this attribute will delete and recreate the dictionary, and discard the current items in the dictionary. Using a write-only/private dictionary should only be done if the items are managed outside of Terraform
+- **write_only** (Boolean) If `true`, the dictionary is a private dictionary, and items are not readable in the UI or via API. Default is `false`. It is important to note that changing this attribute will delete and recreate the dictionary, and discard the current items in the dictionary. Using a write-only/private dictionary should only be done if the items are managed outside of this provider
 
 Read-Only:
 

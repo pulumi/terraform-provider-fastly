@@ -10,7 +10,7 @@ Enables TLS on a domain
 
 Enables TLS on a domain using a specified custom TLS certificate.
 
-~> **Note:** The Fastly service must be provisioned _prior_ to enabling TLS on it. This can be achieved in Terraform using [`depends_on`](https://www.terraform.io/docs/configuration/meta-arguments/depends_on.html).
+~> **Note:** The Fastly service must be provisioned _prior_ to enabling TLS on it.
 
 ## Example Usage
 
