@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"strings"
 	"testing"
 
 	gofastly "github.com/fastly/go-fastly/v3/fastly"
@@ -11,6 +12,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
+
+func init() {
+	resource.AddTestSweepers("fastly_service_v1", &resource.Sweeper{
+		Name: "fastly_service_v1",
+		F:    testSweepServices,
+	})
+}
 
 func TestResourceFastlyFlattenDomains(t *testing.T) {
 	cases := []struct {
@@ -139,8 +147,9 @@ func TestAccFastlyServiceV1_updateDomain(t *testing.T) {
 	nameUpdate := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	domainName1 := fmt.Sprintf("fastly-test.tf-%s.com", acctest.RandString(10))
 	domainName2 := fmt.Sprintf("fastly-test.tf-%s.com", acctest.RandString(10))
+	domainName3 := fmt.Sprintf("fastly-test.tf-%s.com", acctest.RandString(10))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServiceV1Destroy,
@@ -160,7 +169,7 @@ func TestAccFastlyServiceV1_updateDomain(t *testing.T) {
 			},
 
 			{
-				Config: testAccServiceV1Config_domainUpdate(nameUpdate, domainName1, domainName2),
+				Config: testAccServiceV1Config_domainAdd(nameUpdate, domainName1, domainName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckServiceV1Exists("fastly_service_v1.foo", &service),
 					testAccCheckFastlyServiceV1Attributes(&service, nameUpdate, []string{domainName1, domainName2}),
@@ -168,6 +177,30 @@ func TestAccFastlyServiceV1_updateDomain(t *testing.T) {
 						"fastly_service_v1.foo", "name", nameUpdate),
 					resource.TestCheckResourceAttr(
 						"fastly_service_v1.foo", "active_version", "2"),
+					resource.TestCheckResourceAttr(
+						"fastly_service_v1.foo", "domain.#", "2"),
+				),
+			},
+
+			{
+				Config: testAccServiceV1Config_domainUpdateComment(nameUpdate, domainName1, domainName2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckServiceV1Exists("fastly_service_v1.foo", &service),
+					testAccCheckFastlyServiceV1Attributes(&service, nameUpdate, []string{domainName1, domainName2}),
+					resource.TestCheckResourceAttr(
+						"fastly_service_v1.foo", "active_version", "3"),
+					resource.TestCheckResourceAttr(
+						"fastly_service_v1.foo", "domain.#", "2"),
+				),
+			},
+
+			{
+				Config: testAccServiceV1Config_domainUpdate(nameUpdate, domainName1, domainName3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckServiceV1Exists("fastly_service_v1.foo", &service),
+					testAccCheckFastlyServiceV1Attributes(&service, nameUpdate, []string{domainName1, domainName3}),
+					resource.TestCheckResourceAttr(
+						"fastly_service_v1.foo", "active_version", "4"),
 					resource.TestCheckResourceAttr(
 						"fastly_service_v1.foo", "domain.#", "2"),
 				),
@@ -183,7 +216,7 @@ func TestAccFastlyServiceV1_updateBackend(t *testing.T) {
 	backendName := fmt.Sprintf("%s.aws.amazon.com", acctest.RandString(3))
 	backendName2 := fmt.Sprintf("%s.aws.amazon.com", acctest.RandString(3))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServiceV1Destroy,
@@ -219,7 +252,7 @@ func TestAccFastlyServiceV1_updateInvalidBackend(t *testing.T) {
 	backendName := fmt.Sprintf("%s.aws.amazon.com", acctest.RandString(3))
 	backendName2 := fmt.Sprintf("%s.aws.amazon.com", acctest.RandString(3))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServiceV1Destroy,
@@ -256,7 +289,7 @@ func TestAccFastlyServiceV1_basic(t *testing.T) {
 	domainName1 := fmt.Sprintf("fastly-test.tf-%s.com", acctest.RandString(10))
 	domainName2 := fmt.Sprintf("fastly-test.tf-%s.com", acctest.RandString(10))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServiceV1Destroy,
@@ -328,7 +361,7 @@ func TestAccFastlyServiceV1_disappears(t *testing.T) {
 		})
 	}
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServiceV1Destroy,
@@ -446,7 +479,7 @@ func TestAccFastlyServiceV1_defaultTTL(t *testing.T) {
 	backendName := fmt.Sprintf("%s.aws.amazon.com", acctest.RandString(3))
 	backendName2 := fmt.Sprintf("%s.aws.amazon.com", acctest.RandString(3))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServiceV1Destroy,
@@ -494,7 +527,7 @@ func TestAccFastlyServiceV1_createDefaultTTL(t *testing.T) {
 	domain := fmt.Sprintf("fastly-test.tf-%s.com", acctest.RandString(10))
 	backendName := fmt.Sprintf("%s.aws.amazon.com", acctest.RandString(3))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServiceV1Destroy,
@@ -518,7 +551,7 @@ func TestAccFastlyServiceV1_createZeroDefaultTTL(t *testing.T) {
 	domain := fmt.Sprintf("fastly-test.tf-%s.com", acctest.RandString(10))
 	backendName := fmt.Sprintf("%s.aws.amazon.com", acctest.RandString(3))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServiceV1Destroy,
@@ -562,7 +595,7 @@ func TestAccFastlyServiceV1_import(t *testing.T) {
 	var service gofastly.ServiceDetail
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckServiceV1Destroy,
@@ -625,7 +658,7 @@ resource "fastly_service_v1" "foo" {
 }`, name, comment, versionComment, domain)
 }
 
-func testAccServiceV1Config_domainUpdate(name, domain1, domain2 string) string {
+func testAccServiceV1Config_domainAdd(name, domain1, domain2 string) string {
 	return fmt.Sprintf(`
 resource "fastly_service_v1" "foo" {
   name = "%s"
@@ -647,6 +680,54 @@ resource "fastly_service_v1" "foo" {
 
   force_destroy = true
 }`, name, domain1, domain2)
+}
+
+func testAccServiceV1Config_domainUpdateComment(name, domain1, domain2 string) string {
+	return fmt.Sprintf(`
+resource "fastly_service_v1" "foo" {
+  name = "%s"
+
+  domain {
+    name    = "%s"
+    comment = "tf-testing-domain-updated"
+  }
+
+  domain {
+    name    = "%s"
+    comment = "tf-testing-other-domain"
+  }
+
+  backend {
+    address = "aws.amazon.com"
+    name    = "amazon docs"
+  }
+
+  force_destroy = true
+}`, name, domain1, domain2)
+}
+
+func testAccServiceV1Config_domainUpdate(name, domain1, domain3 string) string {
+	return fmt.Sprintf(`
+resource "fastly_service_v1" "foo" {
+  name = "%s"
+
+  domain {
+    name    = "%s"
+    comment = "tf-testing-domain-updated"
+  }
+
+  domain {
+    name    = "%s"
+    comment = "tf-testing-other-domain"
+  }
+
+  backend {
+    address = "aws.amazon.com"
+    name    = "amazon docs"
+  }
+
+  force_destroy = true
+}`, name, domain1, domain3)
 }
 
 func testAccServiceV1Config_backend(name, domain, backend string) string {
@@ -748,4 +829,46 @@ resource "fastly_service_v1" "foo" {
 }
 
 `, serviceName, domainName01, backendName01, domainName02, backendName02)
+}
+
+func testSweepServices(region string) error {
+	client, err := sharedClientForRegion(region)
+	if err != nil {
+		return err
+	}
+
+	services, err := client.ListServices(&gofastly.ListServicesInput{})
+	if err != nil {
+		return err
+	}
+
+	for _, service := range services {
+		if strings.HasPrefix(service.Name, testResourcePrefix) {
+			s, err := client.GetServiceDetails(&gofastly.GetServiceInput{
+				ID: service.ID,
+			})
+			if err != nil {
+				return err
+			}
+
+			if s.ActiveVersion.Number != 0 {
+				_, err := client.DeactivateVersion(&gofastly.DeactivateVersionInput{
+					ServiceID:      service.ID,
+					ServiceVersion: s.ActiveVersion.Number,
+				})
+				if err != nil {
+					return err
+				}
+			}
+
+			err = client.DeleteService(&gofastly.DeleteServiceInput{
+				ID: service.ID,
+			})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

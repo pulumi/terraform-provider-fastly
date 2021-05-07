@@ -31,19 +31,41 @@ func (h *DictionaryServiceAttributeHandler) Process(d *schema.ResourceData, late
 		newDictVal = new(schema.Set)
 	}
 
-	oldDictSet := oldDictVal.(*schema.Set)
-	newDictSet := newDictVal.(*schema.Set)
+	oldSet := oldDictVal.(*schema.Set)
+	newSet := newDictVal.(*schema.Set)
 
-	remove := oldDictSet.Difference(newDictSet).List()
-	add := newDictSet.Difference(oldDictSet).List()
+	setDiff := NewSetDiff(func(resource interface{}) (interface{}, error) {
+		t, ok := resource.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("resource failed to be type asserted: %+v", resource)
+		}
+		return t["name"], nil
+	})
 
-	// Delete removed dictionary configurations
-	for _, dRaw := range remove {
-		df := dRaw.(map[string]interface{})
+	diffResult, err := setDiff.Diff(oldSet, newSet)
+	if err != nil {
+		return err
+	}
+
+	// DELETE removed resources
+	for _, resource := range diffResult.Deleted {
+		resource := resource.(map[string]interface{})
+
+		if !resource["force_destroy"].(bool) {
+			mayDelete, err := isDictionaryEmpty(d.Id(), resource["dictionary_id"].(string), conn)
+			if err != nil {
+				return err
+			}
+
+			if !mayDelete {
+				return fmt.Errorf("Cannot delete dictionary (%s), it is not empty. Either delete the items first, or set force_destroy to true and apply it before making this change.", resource["dictionary_id"].(string))
+			}
+		}
+
 		opts := gofastly.DeleteDictionaryInput{
 			ServiceID:      d.Id(),
 			ServiceVersion: latestVersion,
-			Name:           df["name"].(string),
+			Name:           resource["name"].(string),
 		}
 
 		log.Printf("[DEBUG] Fastly Dictionary Removal opts: %#v", opts)
@@ -57,9 +79,9 @@ func (h *DictionaryServiceAttributeHandler) Process(d *schema.ResourceData, late
 		}
 	}
 
-	// POST new dictionary configurations
-	for _, dRaw := range add {
-		opts, err := buildDictionary(dRaw.(map[string]interface{}))
+	// CREATE new resources
+	for _, resource := range diffResult.Added {
+		opts, err := buildDictionary(resource.(map[string]interface{}))
 		if err != nil {
 			log.Printf("[DEBUG] Error building Dicitionary: %s", err)
 			return err
@@ -73,6 +95,20 @@ func (h *DictionaryServiceAttributeHandler) Process(d *schema.ResourceData, late
 			return err
 		}
 	}
+
+	// UPDATE modified resources (NOT IMPLEMENTED)
+	//
+	// Although the go-fastly API client enables updating of a resource by
+	// its 'name' attribute, this isn't possible within terraform due to
+	// constraints in the data model/schema of the resources not having a uid.
+	//
+	// Additionally, the only other attribute available to a dictionary is the
+	// `write_only` attribute which cannot be modified. For more details see:
+	// https://docs.fastly.com/en/guides/private-dictionaries#limitations-and-considerations
+	//
+	// Because of this we do not implement any logic for updating the dictionary
+	// resource, only CREATE and DELETE functionality.
+
 	return nil
 }
 
@@ -86,9 +122,21 @@ func (h *DictionaryServiceAttributeHandler) Read(d *schema.ResourceData, s *gofa
 		return fmt.Errorf("[ERR] Error looking up Dictionaries for (%s), version (%v): %s", d.Id(), s.ActiveVersion.Number, err)
 	}
 
-	dict := flattenDictionaries(dictList)
+	dictionaries := flattenDictionaries(dictList)
 
-	if err := d.Set(h.GetKey(), dict); err != nil {
+	// Match up force_destroy on each ACL from schema.ResourceData to avoid d.Set overwriting it with null
+	stateDicts := d.Get(h.GetKey()).(*schema.Set).List()
+	for _, dictionary := range dictionaries {
+		for _, sd := range stateDicts {
+			stateDict := sd.(map[string]interface{})
+			if dictionary["name"] == stateDict["name"] {
+				dictionary["force_destroy"] = stateDict["force_destroy"]
+				break
+			}
+		}
+	}
+
+	if err := d.Set(h.GetKey(), dictionaries); err != nil {
 		log.Printf("[WARN] Error setting Dictionary for (%s): %s", d.Id(), err)
 	}
 	return nil
@@ -104,7 +152,7 @@ func (h *DictionaryServiceAttributeHandler) Register(s *schema.Resource) error {
 				"name": {
 					Type:        schema.TypeString,
 					Required:    true,
-					Description: "A unique name to identify this dictionary",
+					Description: "A unique name to identify this dictionary. It is important to note that changing this attribute will delete and recreate the dictionary, and discard the current items in the dictionary",
 				},
 				// Optional fields
 				"dictionary_id": {
@@ -116,7 +164,13 @@ func (h *DictionaryServiceAttributeHandler) Register(s *schema.Resource) error {
 					Type:        schema.TypeBool,
 					Optional:    true,
 					Default:     false,
-					Description: "If `true`, the dictionary is a private dictionary, and items are not readable in the UI or via API. Default is `false`. It is important to note that changing this attribute will delete and recreate the dictionary, discard the current items in the dictionary. Using a write-only/private dictionary should only be done if the items are managed outside of Terraform",
+					Description: "If `true`, the dictionary is a private dictionary, and items are not readable in the UI or via API. Default is `false`. It is important to note that changing this attribute will delete and recreate the dictionary, and discard the current items in the dictionary. Using a write-only/private dictionary should only be done if the items are managed outside of Terraform",
+				},
+				"force_destroy": {
+					Type:        schema.TypeBool,
+					Default:     false,
+					Optional:    true,
+					Description: "Allow the dictionary to be deleted, even if it contains entries. Defaults to false.",
 				},
 			},
 		},
@@ -155,4 +209,16 @@ func buildDictionary(dictMap interface{}) (*gofastly.CreateDictionaryInput, erro
 	}
 
 	return &opts, nil
+}
+
+func isDictionaryEmpty(serviceID, dictID string, conn *gofastly.Client) (bool, error) {
+	items, err := conn.ListDictionaryItems(&gofastly.ListDictionaryItemsInput{
+		ServiceID:    serviceID,
+		DictionaryID: dictID,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return len(items) == 0, nil
 }

@@ -6,6 +6,13 @@ FULL_PKG_NAME=github.com/fastly/terraform-provider-fastly
 VERSION_PLACEHOLDER=version.ProviderVersion
 VERSION=$(shell git describe --tags --always)
 
+# Use a parallelism of 4 by default for tests, overriding whatever GOMAXPROCS is
+# set to. For the acceptance tests especially, the main bottleneck affecting the
+# tests is network bandwidth and Fastly API rate limits. Therefore using the
+# system default value of GOMAXPROCS, which is usually determined by the number
+# of processors available, doesn't make the most sense.
+TEST_PARALLELISM?=4
+
 default: build
 
 build:
@@ -14,7 +21,7 @@ build:
 test:
 	go test -i $(TEST) || exit 1
 	echo $(TEST) | \
-		xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4
+		xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=$(TEST_PARALLELISM)
 
 # prefix `go test` with TF_LOG=debug or 'trace' for additional terraform output
 # such as all the requests and responses it handles.
@@ -23,7 +30,7 @@ test:
 # https://www.terraform.io/docs/internals/debugging.html
 #
 testacc: fmtcheck
-	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 360m -ldflags="-X=$(FULL_PKG_NAME)/$(VERSION_PLACEHOLDER)=acc"
+	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -parallel=$(TEST_PARALLELISM) -timeout 360m -ldflags="-X=$(FULL_PKG_NAME)/$(VERSION_PLACEHOLDER)=acc"
 
 vet:
 	@echo "go vet ."
@@ -52,18 +59,19 @@ test-compile:
 	fi
 	go test -c $(TEST) $(TESTARGS)
 
-dependencies:
-	@echo "Download go.mod dependencies"
-	@go mod download
-
-install-tools: dependencies
+BIN=$(CURDIR)/bin
+$(BIN)/%:
 	@echo "Installing tools from tools/tools.go"
-	@cat tools/tools.go | grep _ | awk -F '"' '{print $$2}' | xargs -tI {} go install {}
+	@cat tools/tools.go | grep _ | awk -F '"' '{print $$2}' | GOBIN=$(BIN) xargs -tI {} go install {}
 
-generate-docs: install-tools
-	go run scripts/generate-docs.go
+generate-docs: $(BIN)/tfplugindocs
+	go run scripts/generate-docs.go -tfplugindocsPath=$(BIN)/tfplugindocs
 
-validate-docs: install-tools
-	tfplugindocs validate
+validate-docs: $(BIN)/tfplugindocs
+	$(BIN)/tfplugindocs validate
 
-.PHONY: build test testacc vet fmt fmtcheck errcheck test-compile validate-docs generate-docs install-tools dependencies
+sweep:
+	@echo "WARNING: This will destroy infrastructure. Use only in development accounts."
+	go test ./fastly -v -sweep=ALL $(SWEEPARGS) -timeout 30m
+
+.PHONY: build test testacc vet fmt fmtcheck errcheck test-compile sweep validate-docs generate-docs
