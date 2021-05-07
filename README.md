@@ -8,8 +8,10 @@
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 0.10.x
+-	[Terraform](https://www.terraform.io/downloads.html) 0.12.x or higher 
 -	[Go](https://golang.org/doc/install) 1.14 (to build the provider plugin)
+
+> NOTE: the last version of the Fastly provider to support Terraform 0.11.x and below was [v0.26.0](https://github.com/fastly/terraform-provider-fastly/releases/tag/v0.26.0)
 
 ## Building The Provider
 
@@ -31,14 +33,16 @@ $ make build
 
 If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.14+ is *required*).
 
-To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
+To compile the provider, run `make build`. This will build the provider and put the provider binary in a local `bin` directory.
 
 ```sh
 $ make build
 ...
-$ $GOPATH/bin/terraform-provider-fastly
-...
 ```
+
+Alongside the newly built binary a file called `developer_overrides.tfrc` will be created.  The `make build` target will communicate 
+back details for setting the `TF_CLI_CONFIG_FILE` environment variable that will enable Terraform to use your locally built provider binary.
+* HashiCorp - [Development Overrides for Provider developers](https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers). 
 
 ## Testing
 
